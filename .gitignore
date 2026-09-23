@@ -1,0 +1,10 @@
+bin/
+obj/
+app/
+artifacts/
+backups/
+.codex-remote-attachments/
+hook-status.json
+*.log
+*.tmp
+*.user
