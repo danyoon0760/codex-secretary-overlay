@@ -14,8 +14,12 @@ if (-not (Test-Path -LiteralPath $sourceExe -PathType Leaf)) {
 
 $destination = [IO.Path]::GetFullPath($InstallDirectory)
 $installedExe = Join-Path $destination 'SecretaryOverlay.exe'
-if ($destination.TrimEnd('\') -eq [IO.Path]::GetFullPath($sourceApp).TrimEnd('\')) {
-    throw 'Choose a different installation folder from the extracted release package.'
+$sourceFull = [IO.Path]::GetFullPath($sourceApp).TrimEnd('\')
+$destinationFull = $destination.TrimEnd('\')
+if ($destinationFull.Equals($sourceFull, [StringComparison]::OrdinalIgnoreCase) -or
+    $destinationFull.StartsWith($sourceFull + '\', [StringComparison]::OrdinalIgnoreCase) -or
+    $sourceFull.StartsWith($destinationFull + '\', [StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Choose an installation folder outside the extracted release package.'
 }
 
 if (Test-Path -LiteralPath $installedExe -PathType Leaf) {
@@ -35,7 +39,9 @@ if (Test-Path -LiteralPath $installedExe -PathType Leaf) {
 }
 
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
-Copy-Item -Path (Join-Path $sourceApp '*') -Destination $destination -Recurse -Force
+Get-ChildItem -LiteralPath $sourceApp -Force | ForEach-Object {
+    Copy-Item -LiteralPath $_.FullName -Destination $destination -Recurse -Force
+}
 foreach ($script in @('Install-Hooks.ps1', 'Disconnect-Hooks.ps1', 'Uninstall.ps1', 'Uninstall.cmd')) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot $script) -Destination (Join-Path $destination $script) -Force
 }

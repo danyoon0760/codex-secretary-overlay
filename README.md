@@ -40,6 +40,7 @@ Windows가 서명되지 않은 앱에 대한 경고를 표시할 수 있습니�
 dotnet build -c Release
 dotnet run -c Release --no-build -- --self-test
 pwsh -File .\HookScriptsVerification.ps1
+pwsh -File .\InstallVerification.ps1
 ```
 
 Windows x64용 자체 포함 배포본:
