@@ -21,6 +21,8 @@ if ($process.ExitCode -ne 0) {
         }
         finally { $stream.Dispose() }
     }
+    $report = Join-Path $data 'self-test.json'
+    if (Test-Path -LiteralPath $report) { Write-Output ('Failed check: ' + (Get-Content -Raw -LiteralPath $report | ConvertFrom-Json).failed) }
     throw "Self-test failed with exit code $($process.ExitCode)."
 }
 $report = Join-Path $data 'self-test.json'

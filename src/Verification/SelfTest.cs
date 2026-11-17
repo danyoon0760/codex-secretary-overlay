@@ -9,8 +9,18 @@ public static class SelfTest
         // Transport checks only inspect the process start info, so a placeholder
         // executable stands in where Codex CLI is not installed (CI, fresh clones).
         using var codex = CodexPlaceholder.IfMissing();
-        return RunChecks();
+        try { return RunChecks(); }
+        catch (SelfTestFailure failure)
+        {
+            // The error log omits exception messages for privacy; the report names the failed check.
+            Directory.CreateDirectory(AppStorage.DataDirectory);
+            File.WriteAllText(Path.Combine(AppStorage.DataDirectory, "self-test.json"),
+                JsonSerializer.Serialize(new { ok = false, failed = failure.Message }, AppStorage.Json));
+            throw;
+        }
     }
+
+    private sealed class SelfTestFailure(string label) : InvalidOperationException(label);
 
     private sealed class CodexPlaceholder : IDisposable
     {
@@ -46,7 +56,7 @@ public static class SelfTest
         var results = new List<string>();
         void Check(bool pass, string label)
         {
-            if (!pass) throw new InvalidOperationException(label);
+            if (!pass) throw new SelfTestFailure(label);
             results.Add(label);
         }
         var s = new StateEngine();

@@ -28,6 +28,14 @@ jobs:
           if ($project -ne $v) { throw "Tag $v does not match <Version>$project</Version> in SecretaryOverlay.csproj" }
           "VERSION=$v" >> $env:GITHUB_ENV
 
+      # The bubble layout checks assume a desktop-sized screen; runners start at 1024x768.
+      - name: Desktop resolution
+        shell: powershell
+        run: |
+          Set-DisplayResolution -Width 1920 -Height 1080 -Force
+          Add-Type -AssemblyName System.Windows.Forms
+          [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+
       - name: Build
         run: dotnet build -c Release -nologo
 
