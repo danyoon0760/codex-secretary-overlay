@@ -2,8 +2,12 @@ $ErrorActionPreference = 'Stop'
 $root = Join-Path ([IO.Path]::GetTempPath()) ('SecretaryOverlay-install-test-' + [guid]::NewGuid().ToString('N'))
 $package = Join-Path $root 'release [1]'
 $sourceApp = Join-Path $package 'app'
-$destination = Join-Path $root '설치 사용자 [1]\SecretaryOverlay'
-$hooksPath = Join-Path $root 'Codex 설정 [1]\hooks.json'
+# Korean path segments are built from code points so the script stays ASCII and
+# behaves the same under Windows PowerShell 5.1, which misreads BOM-less UTF-8.
+$korean = -join [char[]](0xC124, 0xCE58, 0x20, 0xC0AC, 0xC6A9, 0xC790)
+$settings = -join [char[]](0xC124, 0xC815)
+$destination = Join-Path $root ($korean + ' [1]\SecretaryOverlay')
+$hooksPath = Join-Path $root ('Codex ' + $settings + ' [1]\hooks.json')
 
 try {
     New-Item -ItemType Directory -Path (Join-Path $sourceApp 'assets'), (Split-Path -Parent $hooksPath) -Force | Out-Null

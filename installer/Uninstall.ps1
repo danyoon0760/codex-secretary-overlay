@@ -29,7 +29,7 @@ if (Test-Path -LiteralPath $installedExe -PathType Leaf) {
     if ($running.Count -gt 0) { throw 'Close the running Secretary Overlay and run the uninstaller again.' }
 }
 
-$shortcut = Join-Path ([Environment]::GetFolderPath('Desktop')) '비서 펫.lnk'
+$shortcut = Join-Path ([Environment]::GetFolderPath('Desktop')) ((-join [char[]](0xBE44, 0xC11C, 0x20, 0xD3AB)) + '.lnk')
 if (Test-Path -LiteralPath $shortcut) {
     $shell = New-Object -ComObject WScript.Shell
     if ([IO.Path]::GetFullPath($shell.CreateShortcut($shortcut).TargetPath) -eq $installedExe) {

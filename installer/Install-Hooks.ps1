@@ -46,9 +46,9 @@ Write-Output ('Registered 12 event hooks: ' + $petHooksPath)
 Write-Output 'Review and trust these hooks in Codex Settings > Hook. This script does not modify trust settings.'
 if (-not $SkipShortcut) {
     $petShell = New-Object -ComObject WScript.Shell
-    $petShortcut = $petShell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) '비서 펫.lnk'))
+    $petShortcut = $petShell.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Desktop')) ((-join [char[]](0xBE44, 0xC11C, 0x20, 0xD3AB)) + '.lnk')))
     $petShortcut.TargetPath = $petExe
     $petShortcut.WorkingDirectory = (Split-Path $petExe)
-    $petShortcut.Description = 'Codex 후크 비서 오버레이'
+    $petShortcut.Description = 'Codex task notification overlay'
     $petShortcut.Save()
 }
