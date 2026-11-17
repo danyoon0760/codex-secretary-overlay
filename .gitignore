@@ -1,5 +1,7 @@
 bin/
 obj/
+publish/
+dist/
 app/
 artifacts/
 backups/
