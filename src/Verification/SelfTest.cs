@@ -6,6 +6,43 @@ public static class SelfTest
 {
     public static int Run()
     {
+        // Transport checks only inspect the process start info, so a placeholder
+        // executable stands in where Codex CLI is not installed (CI, fresh clones).
+        using var codex = CodexPlaceholder.IfMissing();
+        return RunChecks();
+    }
+
+    private sealed class CodexPlaceholder : IDisposable
+    {
+        private const string Variable = "SECRETARY_CODEX_EXE";
+        private readonly string? previous;
+        private readonly string folder;
+
+        private CodexPlaceholder(string? previous)
+        {
+            this.previous = previous;
+            folder = Path.Combine(Path.GetTempPath(), "SecretaryOverlay-selftest-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            var exe = Path.Combine(folder, "codex.exe");
+            File.WriteAllBytes(exe, []);
+            Environment.SetEnvironmentVariable(Variable, exe);
+        }
+
+        internal static CodexPlaceholder? IfMissing()
+        {
+            try { CodexProcess.FindExecutable(); return null; }
+            catch (FileNotFoundException) { return new(Environment.GetEnvironmentVariable(Variable)); }
+        }
+
+        public void Dispose()
+        {
+            Environment.SetEnvironmentVariable(Variable, previous);
+            try { Directory.Delete(folder, true); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+        }
+    }
+
+    private static int RunChecks()
+    {
         var results = new List<string>();
         void Check(bool pass, string label)
         {
