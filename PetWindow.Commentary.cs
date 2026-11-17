@@ -75,7 +75,7 @@ public sealed partial class PetWindow
         if (activity is null || stop.IsCancellationRequested) return;
         if (!HasCommentarySlot) return;
         if (!commentary.CanStart(Now, manual, ReadyForCommentary, activity.Available, activity.MouseRecent(Now), viewing.VideoPlaying)) return;
-        var selectedModel = manual ? manualModel : automaticModel;
+        var selectedModel = commentaryModel;
         var selectedPersonalization = personalization;
         commentary.Begin();
         manualRequest = manual;

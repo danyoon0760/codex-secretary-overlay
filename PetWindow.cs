@@ -40,8 +40,7 @@ public sealed partial class PetWindow : Window
     private bool motion = true;
     private bool clickThrough;
     private bool showLabels = true;
-    private ModelProfile automaticModel = ModelProfile.Default;
-    private ModelProfile manualModel = ModelProfile.Default;
+    private ModelProfile commentaryModel = ModelProfile.Default;
     private ModelProfile completionModel = ModelProfile.Default;
     private PetPersonalization personalization = PetPersonalization.Default;
     private BubbleAppearance bubbleAppearance = BubbleAppearance.Default;

@@ -43,6 +43,18 @@ public sealed partial class PetWindow
         control.Show();
     }
 
+    private void ShowSpeakingControls()
+    {
+        ShowControls();
+        if (control?.Content is DockPanel surface)
+        {
+            var tabs = surface.Children.OfType<TabControl>().Single();
+            tabs.SelectedIndex = 0;
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                ((ScrollViewer)((TabItem)tabs.Items[0]).Content).ScrollToTop()));
+        }
+    }
+
     internal DockPanel BuildSettingsContent()
     {
         settingsRefresh.Clear();

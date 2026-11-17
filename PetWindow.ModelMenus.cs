@@ -1,6 +1,6 @@
 namespace SecretaryOverlay;
 
-internal enum ModelFeature { Automatic, Manual, Completion }
+internal enum ModelFeature { Commentary, Completion }
 
 public sealed partial class PetWindow
 {
@@ -8,13 +8,13 @@ public sealed partial class PetWindow
     {
         var catalog = ModelCatalog.Read();
         MenuEntry[] entries = [
-            new("자동으로 말하기", Checked: commentary.Enabled, Children: new[] {
-                new MenuEntry("자동으로 말하기", ToggleCommentary, Checked: commentary.Enabled), MenuEntry.Separator
-            }.Concat(ModelMenus.Choices(catalog, automaticModel, true, profile => SetModelProfile(ModelFeature.Automatic, profile))).ToArray()),
-            new("화면 보고 한마디", Children: new[] {
+            new("화면 보고 말하기", Children: new[] {
                 new MenuEntry(commentary.Busy ? "한마디 준비 중…" : HasCommentarySlot ? "지금 말하기" : "말풍선 하나를 닫아 주세요",
-                    () => _ = SpeakAsync(true), Enabled: !commentary.Busy && HasCommentarySlot), MenuEntry.Separator
-            }.Concat(ModelMenus.Choices(catalog, manualModel, true, profile => SetModelProfile(ModelFeature.Manual, profile))).ToArray()),
+                    () => _ = SpeakAsync(true), Enabled: !commentary.Busy && HasCommentarySlot),
+                new MenuEntry("자동으로 말하기", ToggleCommentary, Checked: commentary.Enabled),
+                new MenuEntry($"자동 실행 간격: {commentary.IntervalMinutes}분", ShowSpeakingControls),
+                MenuEntry.Separator
+            }.Concat(ModelMenus.Choices(catalog, commentaryModel, true, profile => SetModelProfile(ModelFeature.Commentary, profile))).ToArray()),
             new("작업 상황 말풍선 표시", () => SetProgressEnabled(!showProgress), Checked: showProgress),
             new("완료 메시지: 원문에서 간추리기", () => SetCompletionStyle(CompletionStyle.B), Checked: progressBoard.Style == CompletionStyle.B),
             new("완료 메시지: AI로 요약하기", Checked: progressBoard.Style == CompletionStyle.D, Children: new[] {
@@ -30,8 +30,7 @@ public sealed partial class PetWindow
         var selected = ModelProfile.Validated(profile);
         switch (feature)
         {
-            case ModelFeature.Automatic: automaticModel = selected; break;
-            case ModelFeature.Manual: manualModel = selected; break;
+            case ModelFeature.Commentary: commentaryModel = selected; break;
             case ModelFeature.Completion: completionModel = selected; break;
         }
         // Requests already in flight retain their captured profile; selecting does not run or enable anything.

@@ -34,8 +34,7 @@ public sealed partial class PetWindow
             bubbleAppearance = BubbleAppearance.Normalize(saved.BubbleAppearance);
             showProgress = saved.ShowProgress;
             progressBoard.Style = saved.CompletionStyle == CompletionStyle.D ? CompletionStyle.D : CompletionStyle.B;
-            automaticModel = ModelProfile.Validated(saved.AutomaticModel);
-            manualModel = ModelProfile.Validated(saved.ManualModel);
+            commentaryModel = ModelProfile.Validated(saved.ManualModel ?? saved.AutomaticModel);
             completionModel = ModelProfile.Validated(saved.CompletionModel);
             showLabels = saved.ShowLabels;
             badge.Visibility = showLabels ? Visibility.Visible : Visibility.Hidden;
@@ -52,7 +51,7 @@ public sealed partial class PetWindow
     private void SaveLayout()
     {
         bool saved = AppStorage.SaveLayout(new Layout(Left, Top, Height, motion, commentary.Enabled, showProgress, progressBoard.Style,
-            automaticModel, manualModel, completionModel, showLabels, bubbleAppearance, commentary.IntervalMinutes));
+            commentaryModel, commentaryModel, completionModel, showLabels, bubbleAppearance, commentary.IntervalMinutes));
         if (!saved && !storageWarningShown)
         {
             storageWarningShown = true;
@@ -85,8 +84,7 @@ public sealed partial class PetWindow
         lastCommentAt,
         videoPlaying = viewing.VideoPlaying,
         manualViewing,
-        automaticModel,
-        manualModel,
+        commentaryModel,
         showProgress,
         completionStyle = progressBoard.Style.ToString(),
         completionSummaryModel = completionModel.Model,

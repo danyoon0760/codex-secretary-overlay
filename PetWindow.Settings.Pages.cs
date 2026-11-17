@@ -29,17 +29,16 @@ public sealed partial class PetWindow
 
     private void BuildSpeakingSettings(StackPanel speaking)
     {
-        speaking.Children.Add(SettingsHeading("자동으로 말하기"));
+        speaking.Children.Add(SettingsHeading("화면 보고 말하기"));
         SettingsToggle(speaking, "자동으로 말하기", () => commentary.Enabled, SetCommentaryEnabled);
         var interval = new NumberSetting("자동 한마디 간격", "분", CommentaryPolicy.MinIntervalMinutes, CommentaryPolicy.MaxIntervalMinutes,
             () => commentary.IntervalMinutes, value => SetCommentaryInterval((int)value));
         speaking.Children.Add(interval); settingsRefresh.Add(interval.Sync);
         speaking.Children.Add(SettingsDescription("기본은 20분이에요. 간격을 바꾸면 지금부터 새 간격을 기다려요. 변경만으로 바로 말을 걸지는 않아요."));
         speaking.Children.Add(SettingsDescription("작업 중이 아닐 때 현재 사용 중인 창을 보고 말을 걸어요. 최근 5분 안에 마우스를 움직였거나, 영상 재생이 감지되면 동작해요. 화면 잠금·꺼짐 상태에서는 쉬어요."));
-        SettingsModels(speaking, ModelFeature.Automatic, () => automaticModel);
-        speaking.Children.Add(SettingsHeading("화면 보고 한마디"));
         speaking.Children.Add(SettingsDescription("원할 때 직접 요청할 수 있어요. 설정 창 뒤에서 사용하던 앱을 확인해요. 자동 말하기가 꺼져 있어도 사용할 수 있어요."));
-        SettingsModels(speaking, ModelFeature.Manual, () => manualModel);
+        speaking.Children.Add(SettingsDescription("자동 실행과 지금 말하기에 같은 모델과 생각 깊이를 사용해요."));
+        SettingsModels(speaking, ModelFeature.Commentary, () => commentaryModel);
         var speak = SettingsButton("지금 말하기", () => _ = SpeakAsync(true));
         speaking.Children.Add(speak);
         settingsRefresh.Add(() =>

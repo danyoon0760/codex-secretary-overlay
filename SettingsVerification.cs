@@ -50,8 +50,8 @@ internal static class SettingsVerification
             check(tabs.Items.Cast<TabItem>().Select(t => (string)t.Header).SequenceEqual(new[] { "말하기", "작업 알림", "캐릭터", "동작 미리보기", "사용자 맞춤 설정" }),
                 "The actual settings view includes the dedicated personalization tab");
             var panels = tabs.Items.Cast<TabItem>().Select(t => (StackPanel)((ScrollViewer)t.Content).Content).ToArray();
-            check(panels.SelectMany(p => p.Children.OfType<ModelSettings>()).Count() == 3,
-                "The actual settings view exposes independent automatic, manual, and completion model selectors");
+            check(panels.SelectMany(p => p.Children.OfType<ModelSettings>()).Count() == 2,
+                "The settings view exposes one shared commentary selector and one completion selector");
             var character = panels[2];
             check(character.Children.OfType<Slider>().Single().Maximum == 950
                 && character.Children.OfType<System.Windows.Controls.CheckBox>().Any(c => (string)c.Content == "마우스 클릭 통과시키기"),
@@ -71,22 +71,22 @@ internal static class SettingsVerification
                 "Actual bubble appearance controls persist independently from the automatic interval");
             var auto = panels[0].Children.OfType<System.Windows.Controls.CheckBox>().First();
             auto.IsChecked = false;
-            check(!pet.FeatureMenus()[0].Checked && AppStorage.LoadLayout()?.AutoCommentary == false,
+            check(!pet.FeatureMenus()[0].Children![1].Checked && AppStorage.LoadLayout()?.AutoCommentary == false,
                 "Turning automatic commentary off in settings updates the native-menu state and saved layout");
-            pet.FeatureMenus()[0].Children![0].Action!();
+            pet.FeatureMenus()[0].Children![1].Action!();
             check(auto.IsChecked == true && AppStorage.LoadLayout()?.AutoCommentary == true,
                 "Toggling automatic commentary in the menu immediately updates the open settings checkbox");
             var manual = panels[0].Children.OfType<ModelSettings>().Last();
             manual.Effort.SelectedIndex = manual.Effort.Items.Count - 1;
             var profile = AppStorage.LoadLayout()!;
             check(profile.ManualModel?.Reasoning == (string)((ComboBoxItem)manual.Effort.SelectedItem).Tag
-                && profile.AutomaticModel == ModelProfile.Default && profile.CompletionModel == ModelProfile.Default,
-                "The real settings callback persists only the selected feature profile");
+                && profile.AutomaticModel == profile.ManualModel && profile.CompletionModel == ModelProfile.Default,
+                "The commentary selector persists a shared automatic/manual profile without changing completion");
             var styleCombo = panels[1].Children.OfType<StackPanel>().Single(p => p.Tag is System.Windows.Controls.ComboBox).Tag as System.Windows.Controls.ComboBox;
             styleCombo!.SelectedIndex = 1;
-            check(pet.FeatureMenus()[4].Checked && AppStorage.LoadLayout()?.CompletionStyle == CompletionStyle.D,
+            check(pet.FeatureMenus()[3].Checked && AppStorage.LoadLayout()?.CompletionStyle == CompletionStyle.D,
                 "The settings completion choice updates both menu checkmarks and saved style");
-            pet.FeatureMenus()[3].Action!();
+            pet.FeatureMenus()[2].Action!();
             check(styleCombo.SelectedIndex == 0, "Menu completion-style changes immediately synchronize the settings selector");
             var labelToggle = character.Children.OfType<System.Windows.Controls.CheckBox>().ElementAt(1);
             labelToggle.IsChecked = false;
@@ -100,7 +100,7 @@ internal static class SettingsVerification
             check(saveBar.Visibility == Visibility.Visible && personal.Save.Parent == saveBar.Child
                 && personal.Save.IsEnabled && personal.SaveHint.Text == "아직 적용 안 됨",
                 "Editing shows an actionable save button and unapplied state below the tab's scrolling content");
-            pet.FeatureMenus()[0].Children![0].Action!();
+            pet.FeatureMenus()[0].Children![1].Action!();
             check(personal.PetName.Text == "테스트 비서" && !pet.Title.Contains("테스트"),
                 "Refreshing other settings preserves a custom draft without applying its name");
             personal.Save.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
